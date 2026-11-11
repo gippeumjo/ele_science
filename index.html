@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ 초등 6학년 과학 - 전기 안전 퀴즈 게임</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti for Celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            yellow: '#FFD166',
+                            green: '#06D6A0',
+                            blue: '#118AB2',
+                            navy: '#073B4C',
+                            danger: '#EF476F'
+                        }
+                    },
+                    fontFamily: {
+                        jua: ['Jua', 'sans-serif'],
+                        sans: ['Noto Sans KR', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #fef9c3 100%);
+            min-height: 100vh;
+        }
+        .font-jua {
+            font-family: 'Jua', sans-serif;
+        }
+        /* Custom Bounce and Pulse Effects */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-6 text-slate-800">
+
+    <!-- 메인 컨테이너 -->
+    <div class="w-full max-w-2xl bg-white/90 glass-card rounded-3xl p-6 sm:p-8 border-4 border-white shadow-2xl relative overflow-hidden">
+        
+        <!-- 상단 배경 장식 요소 -->
+        <div class="absolute -top-12 -right-12 w-32 h-32 bg-yellow-300 rounded-full opacity-30 blur-xl pointer-events-none"></div>
+        <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-sky-400 rounded-full opacity-30 blur-xl pointer-events-none"></div>
+
+        <!-- ================= 1. 시작 화면 ================= -->
+        <div id="start-screen" class="text-center py-6 space-y-6">
+            <!-- 캐릭터 / 대표 아이콘 -->
+            <div class="relative inline-block my-4">
+                <div class="w-28 h-28 sm:w-36 sm:h-36 bg-amber-300 rounded-full flex items-center justify-center mx-auto shadow-inner animate-float border-4 border-amber-400">
+                    <i class="fa-solid fa-bolt-lightning text-6xl sm:text-7xl text-amber-600 drop-shadow-md"></i>
+                </div>
+                <span class="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-2 rounded-full shadow-lg">
+                    <i class="fa-solid fa-shield-halved text-xl"></i>
+                </span>
+            </div>
+
+            <div>
+                <span class="bg-sky-100 text-sky-800 text-sm font-bold px-3 py-1.5 rounded-full border border-sky-300 inline-block mb-2">
+                    초등학교 6학년 과학 연계 🔬
+                </span>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-800 font-jua tracking-wide">
+                    ⚡ 슬기로운 전기 안전 퀴즈
+                </h1>
+                <p class="text-slate-600 mt-2 text-sm sm:text-base">
+                    우리 집과 학교를 지키는 전기 안전 지식!<br>
+                    퀴즈를 풀고 <b>'전기 안전 박사'</b>에 도전해 보세요.
+                </p>
+            </div>
+
+            <!-- 문제 수 선택 영역 -->
+            <div class="bg-amber-50/80 p-4 rounded-2xl border border-amber-200 text-center space-y-2">
+                <label class="block text-sm font-bold text-slate-700 font-jua text-base">
+                    🎯 풀어볼 문제 수를 선택하세요:
+                </label>
+                <div class="grid grid-cols-4 gap-2">
+                    <button type="button" onclick="setQuestionCount(8)" id="count-btn-8" class="q-count-btn py-2.5 rounded-xl font-bold text-sm sm:text-base transition border-2 border-amber-400 bg-amber-400 text-amber-950 shadow-sm font-jua">
+                        8문제
+                    </button>
+                    <button type="button" onclick="setQuestionCount(10)" id="count-btn-10" class="q-count-btn py-2.5 rounded-xl font-bold text-sm sm:text-base transition border-2 border-slate-200 bg-white text-slate-600 hover:border-amber-300 font-jua">
+                        10문제
+                    </button>
+                    <button type="button" onclick="setQuestionCount(13)" id="count-btn-13" class="q-count-btn py-2.5 rounded-xl font-bold text-sm sm:text-base transition border-2 border-slate-200 bg-white text-slate-600 hover:border-amber-300 font-jua">
+                        13문제
+                    </button>
+                    <button type="button" onclick="setQuestionCount(16)" id="count-btn-16" class="q-count-btn py-2.5 rounded-xl font-bold text-sm sm:text-base transition border-2 border-slate-200 bg-white text-slate-600 hover:border-amber-300 font-jua">
+                        16문제
+                    </button>
+                </div>
+            </div>
+
+            <!-- 안심 및 특징 안내 카드 -->
+            <div class="grid grid-cols-3 gap-3 my-6 text-xs sm:text-sm font-medium text-slate-700">
+                <div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 flex flex-col items-center">
+                    <i class="fa-solid fa-shuffle text-amber-500 text-xl mb-1"></i>
+                    <span>무작위 출제</span>
+                </div>
+                <div class="bg-purple-50 p-3 rounded-2xl border border-purple-200 flex flex-col items-center">
+                    <i class="fa-solid fa-list-check text-purple-500 text-xl mb-1"></i>
+                    <span>주관식+객관식</span>
+                </div>
+                <div class="bg-emerald-50 p-3 rounded-2xl border border-emerald-200 flex flex-col items-center">
+                    <i class="fa-solid fa-award text-emerald-500 text-xl mb-1"></i>
+                    <span>원리 해설</span>
+                </div>
+            </div>
+
+            <button id="start-btn" onclick="startQuiz()" class="w-full py-4 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-extrabold text-xl rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 font-jua border-b-4 border-amber-600 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-play"></i> 게임 시작하기 (Enter ↵)
+            </button>
+        </div>
+
+        <!-- ================= 2. 퀴즈 진행 화면 ================= -->
+        <div id="quiz-screen" class="hidden space-y-6">
+            <!-- 상단 헤더: 진행률 & 점수 -->
+            <div class="flex items-center justify-between gap-4 bg-slate-100 p-3.5 rounded-2xl border border-slate-200">
+                <div class="flex-1">
+                    <div class="flex justify-between text-xs sm:text-sm font-bold text-slate-600 mb-1">
+                        <span>문제 <span id="current-q-num" class="text-amber-600">1</span> / <span id="total-q-num">8</span></span>
+                        <span id="progress-percent" class="text-slate-500">12.5%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+                        <div id="progress-bar" class="bg-gradient-to-r from-amber-400 to-emerald-400 h-3 rounded-full transition-all duration-300 w-0"></div>
+                    </div>
+                </div>
+                <div class="bg-white px-3 py-1.5 rounded-xl border border-slate-200 text-center shadow-sm">
+                    <span class="block text-[10px] text-slate-400 font-bold uppercase">내 점수</span>
+                    <span id="current-score" class="font-jua text-lg sm:text-xl text-blue-600">0점</span>
+                </div>
+            </div>
+
+            <!-- 문제 카드 -->
+            <div class="bg-amber-50/70 border-2 border-amber-200/80 rounded-2xl p-5 sm:p-6 relative">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="inline-block bg-amber-400 text-amber-950 font-bold text-xs px-2.5 py-1 rounded-md font-jua">
+                        Q<span id="question-badge-num">1</span>
+                    </div>
+                    <span id="question-type-badge" class="bg-sky-500 text-white font-bold text-xs px-2.5 py-1 rounded-md font-jua">
+                        주관식
+                    </span>
+                </div>
+                <h2 id="question-text" class="text-lg sm:text-xl font-bold text-slate-800 leading-relaxed font-sans min-h-[60px]">
+                    질문 내용이 여기에 들어갑니다.
+                </h2>
+
+                <!-- 힌트 아코디언 -->
+                <div class="mt-4 pt-3 border-t border-amber-200/60">
+                    <button onclick="toggleHint()" class="text-xs font-bold text-amber-700 hover:text-amber-800 flex items-center gap-1 focus:outline-none">
+                        <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                        <span>힌트가 필요한가요?</span>
+                        <i id="hint-chevron" class="fa-solid fa-chevron-down text-[10px] transition-transform"></i>
+                    </button>
+                    <div id="hint-box" class="hidden mt-2 p-3 bg-white/80 rounded-xl text-xs text-slate-600 border border-amber-200 font-sans">
+                        💡 <span id="hint-text">힌트 내용</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 정답 입력 영역 (주관식/객관식) -->
+            <div id="input-container" class="space-y-3">
+                <!-- 주관식 입력 창 -->
+                <div id="subjective-box" class="space-y-3">
+                    <label for="answer-input" class="block text-sm font-bold text-slate-700">
+                        ✏️ 알맞은 답을 입력하세요:
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="text" id="answer-input" placeholder="정답 입력 (예: 감전)" 
+                               class="flex-1 px-4 py-3.5 rounded-xl border-2 border-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-200 outline-none text-base sm:text-lg font-bold transition"
+                               autocomplete="off">
+                        <button id="submit-btn" onclick="submitAnswer()" class="px-5 sm:px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base sm:text-lg rounded-xl shadow transition active:scale-95 font-jua flex items-center justify-center gap-1 min-w-[90px]">
+                            제출
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 객관식 보기 영역 -->
+                <div id="objective-box" class="hidden space-y-3">
+                    <label class="block text-sm font-bold text-slate-700">
+                        🔘 알맞은 번호를 클릭하거나 키보드(1~4)를 누르세요:
+                    </label>
+                    <div id="options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- 동적 생성 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 피드백 & 해설 박스 (제출 후 표시) -->
+            <div id="feedback-card" class="hidden rounded-2xl p-5 border-2 transition-all space-y-3">
+                <div class="flex items-center gap-3">
+                    <div id="feedback-icon" class="w-10 h-10 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+                        <!-- Icon JS 삽입 -->
+                    </div>
+                    <div>
+                        <h3 id="feedback-title" class="font-jua text-xl">정답입니다!</h3>
+                        <p id="correct-answer-display" class="text-xs text-slate-500"></p>
+                    </div>
+                </div>
+                
+                <!-- 과학적 원리 해설 -->
+                <div class="bg-white/80 rounded-xl p-4 border border-slate-200 text-xs sm:text-sm text-slate-700 leading-relaxed font-sans">
+                    <div class="font-bold text-slate-800 mb-1 flex items-center gap-1">
+                        <i class="fa-solid fa-book-open text-sky-500"></i> 왜 그럴까요? (과학적 원리)
+                    </div>
+                    <p id="explanation-text">해설 내용이 나타납니다.</p>
+                </div>
+
+                <button id="next-btn" onclick="nextQuestion()" class="w-full py-3.5 bg-slate-800 hover:bg-slate-900 text-white font-bold text-base rounded-xl shadow transition active:scale-95 font-jua flex items-center justify-center gap-2">
+                    <span>다음 문제로 (Enter ↵)</span> <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= 3. 결과 화면 ================= -->
+        <div id="result-screen" class="hidden text-center py-6 space-y-6">
+            <div>
+                <span class="bg-amber-100 text-amber-800 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-amber-300">
+                    🎉 퀴즈 완료!
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 font-jua mt-2">
+                    최종 평가 결과
+                </h2>
+            </div>
+
+            <!-- 배지 및 별점 카운터 -->
+            <div class="bg-gradient-to-b from-amber-50 to-orange-50 border-2 border-amber-200 rounded-3xl p-6 shadow-inner relative overflow-hidden">
+                <div id="badge-icon-container" class="text-6xl my-2 animate-bounce">
+                    🏆
+                </div>
+                <h3 id="title-grade" class="text-2xl sm:text-3xl font-extrabold text-amber-600 font-jua">
+                    전기 안전 박사
+                </h3>
+                
+                <!-- 별점 -->
+                <div id="star-rating" class="flex justify-center gap-2 text-2xl text-amber-400 my-3">
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-amber-200/60">
+                    <div class="bg-white p-3 rounded-2xl border border-amber-100">
+                        <span class="block text-xs text-slate-400 font-bold">최종 점수</span>
+                        <span id="final-score" class="text-2xl sm:text-3xl font-extrabold text-blue-600 font-jua">100점</span>
+                    </div>
+                    <div class="bg-white p-3 rounded-2xl border border-amber-100">
+                        <span class="block text-xs text-slate-400 font-bold">맞힌 문제</span>
+                        <span id="final-correct-count" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 font-jua">8 / 8</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 칭찬 피드백 메시지 -->
+            <p id="result-message" class="text-slate-600 text-sm sm:text-base font-medium">
+                우와! 완벽해요. 전기 안전 지식을 확실하게 이해하고 있군요!
+            </p>
+
+            <!-- 재시도 및 복습 버튼 -->
+            <div class="pt-2">
+                <button onclick="restartQuiz()" class="w-full py-4 bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 text-white font-extrabold text-xl rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 font-jua border-b-4 border-emerald-700 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> 다시 도전하기
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= JavaScript 데이터 & 로직 ================= -->
+    <script>
+        // 초등학교 6학년 과학 교과 기준 전기 안전 확장 문제 은행 (총 18문항)
+        const quizData = [
+            // [주관식 문항들]
+            {
+                type: 'subjective',
+                question: "젖은 손으로 전기 기구를 만지거나 콘센트를 만질 때 전기가 몸으로 흘러 충격을 받는 위험한 현상을 무엇이라고 하나요?",
+                answers: ["감전"],
+                hint: "전기가 몸에 통하는 사고예요. (두 글자)",
+                explanation: "물은 전기가 통하는 성질이 있어 젖은 손으로 전기 기구를 다루면 전기가 사람의 몸으로 흘러 들어가는 감전 사고가 일어날 수 있습니다."
+            },
+            {
+                type: 'subjective',
+                question: "고무, 플라스틱, 유리처럼 전기가 잘 통하지 않는 물질을 무엇이라고 할까요?",
+                answers: ["부도체", "절연체"],
+                hint: "전기가 잘 통하는 '도체'의 반대말입니다.",
+                explanation: "부도체(절연체)는 전기가 잘 통하지 않는 물질입니다. 전선의 겉면을 플라스틱이나 고무로 둘러싸 감전 사고를 방지합니다."
+            },
+            {
+                type: 'subjective',
+                question: "콘센트에서 전선 코드를 뺄 때, 전선을 직접 당기지 않고 꼭 잡고 뽑아야 하는 이 부분의 이름은 무엇일까요?",
+                answers: ["플러그", "플러그 몸통", "플러그머리", "몸통"],
+                hint: "전선 끝에 붙어 있는 딱딱한 몸통 부위예요.",
+                explanation: "전선을 직접 당기면 전선 내부의 미세한 구리선이 끊어져 단선되거나 합선 화재 위험이 커집니다. 반드시 플러그의 딱딱한 몸통을 잡아야 합니다."
+            },
+            {
+                type: 'subjective',
+                question: "건물 옥상에 설치하여 벼락(번개)을 안전하게 땅속으로 흘려보내 건물을 보호하는 금속 장치는 무엇일까요?",
+                answers: ["피뢰침"],
+                hint: "벼락을 피하게 해주는 뾰족한 침 형태의 장치입니다.",
+                explanation: "피뢰침은 높은 건물 꼭대기에 설치되어 벼락을 받아낸 후, 전선을 통해 전기를 안전하게 땅속으로 방전시켜 건물의 파손과 화재를 막습니다."
+            },
+            {
+                type: 'subjective',
+                question: "피복이 벗겨진 두 전선이 직접 닿아 순간적으로 매우 큰 전류가 흐르고 불꽃이 튀는 현상을 무엇이라고 할까요?",
+                answers: ["합선", "단락", "쇼트"],
+                hint: "두 전선이 합쳐진다는 뜻의 두 글자 단어입니다.",
+                explanation: "합선(단락)이 일어나면 전기 저항이 유례없이 작아져 매우 강한 전류가 순간적으로 흐르며 큰 열과 불꽃을 발생시켜 화재가 발생합니다."
+            },
+            {
+                type: 'subjective',
+                question: "철, 구리, 알루미늄처럼 전기가 잘 통하는 물질을 무엇이라고 할까요?",
+                answers: ["도체"],
+                hint: "'부도체'의 반대 개념입니다. (두 글자)",
+                explanation: "도체는 전하(전기)가 쉽게 이동할 수 있는 물질입니다. 회로를 연결하는 전선 내부에는 도체인 구리선이 쓰입니다."
+            },
+            {
+                type: 'subjective',
+                question: "전기 회로에서 전류를 흐르게 하거나 흐르지 않게 막아 전등을 켜고 끌 수 있게 해주는 장치는 무엇일까요?",
+                answers: ["스위치"],
+                hint: "벽이나 전자기기에 달린 온/오프(ON/OFF) 버튼입니다.",
+                explanation: "스위치는 회로를 닫아 전류를 흐르게 하거나, 회로를 열어 전류를 차단하는 역할을 합니다."
+            },
+            {
+                type: 'subjective',
+                question: "전기가 외부로 새어 나가거나 이상 전류가 흐를 때 집 전체의 전기를 자동으로 차단하여 화재와 감전을 막는 장치는 무엇일까요?",
+                answers: ["누전차단기", "누전 차단기", "두꺼비집", "차단기"],
+                hint: "신발장 근처 벽에 있는 두꺼비집이라 부르던 안전 장치입니다.",
+                explanation: "누전차단기는 집에 전기가 새는 누전 현상이나 과전류가 감지되면 즉시 스위치를 내려 사고를 예방하는 안전장치입니다."
+            },
+            {
+                type: 'subjective',
+                question: "한 콘센트에 너무 많은 전기 기구를 꽂아 허용량 이상의 전기가 흐르는 상태를 무엇이라고 할까요?",
+                answers: ["과부하"],
+                hint: "부하가 지나치게 많이 걸렸다는 뜻의 두 글자 단어입니다.",
+                explanation: "과부하 상태가 되면 전선에 과도한 열이 발생하여 피복이 녹고 화재로 이어질 수 있으므로 적절한 수의 기구만 연결해야 합니다."
+            },
+            {
+                type: 'subjective',
+                question: "세탁기나 냉장고 같은 가전제품에서 누전된 전기를 땅속으로 안전하게 흘려보내는 안전선 연결 작업을 무엇이라고 하나요?",
+                answers: ["접지", "어스"],
+                hint: "땅(지)과 접촉시킨다는 뜻의 두 글자 용어입니다.",
+                explanation: "접지는 제품 누전 시 전류가 인체 대신 땅속으로 흘러가도록 통로를 만들어 감전 사고를 방지합니다."
+            },
+            {
+                type: 'subjective',
+                question: "가정에서 사용되는 전등이나 전자제품들은 하나가 꺼져도 다른 제품이 계속 작동하도록 무슨 연결 방식으로 되어 있을까요?",
+                answers: ["병렬", "병렬연결", "병렬 연결"],
+                hint: "직렬연결의 반대 방식입니다.",
+                explanation: "가정의 전기 회로는 병렬 연결로 되어 있어서 모든 제품에 동일한 전압이 걸리고, 일부 전자기기 전원을 꺼도 다른 기기를 계속 쓸 수 있습니다."
+            },
+
+            // [객관식 문항들]
+            {
+                type: 'objective',
+                question: "다음 중 전기가 잘 통하는 '도체'에 해당하는 것은 무엇일까요?",
+                options: ["철못", "고무장갑", "유리컵", "플라스틱 컵"],
+                correctIndex: 0,
+                hint: "금속으로 만들어진 물건을 찾아보세요.",
+                explanation: "철, 구리, 알루미늄 같은 금속은 전기가 매우 잘 통하는 '도체'입니다. 고무, 유리, 플라스틱은 전기가 잘 통하지 않는 '부도체'입니다."
+            },
+            {
+                type: 'objective',
+                question: "한 개의 멀티탭이나 콘센트에 너무 많은 전기 기구를 한 번에 연결해 사용할 때 발생하기 쉬운 위험은 무엇일까요?",
+                options: ["과열로 인한 화재 발생", "전기가 절약됨", "전선이 차가워짐", "전기 요금이 할인됨"],
+                correctIndex: 0,
+                hint: "전류가 너무 많이 흐르면 열이 급격히 높아집니다.",
+                explanation: "멀티탭 하나에 여러 전자기기를 과도하게 연결하면 높은 전류로 인해 열이 많이 발생하여 전선 피복이 녹고 화재가 일어날 수 있습니다."
+            },
+            {
+                type: 'objective',
+                question: "다음 중 전기 안전 수칙으로 올바르지 않은 행동은 무엇일까요?",
+                options: ["젖은 손으로 플러그를 꽂거나 만진다", "안 쓰는 전기 기구의 플러그는 뽑아둔다", "피복이 벗겨진 전선은 즉시 교체한다", "콘센트 구멍에 이물질을 넣지 않는다"],
+                correctIndex: 0,
+                hint: "손에 물기가 있을 때 전기를 만지는 행동은 매우 위험해요!",
+                explanation: "젖은 손으로 전기 기구를 다루면 감전될 위험이 매우 큽니다. 전기를 다룰 때는 항상 손의 물기를 깨끗이 닦아야 합니다."
+            },
+            {
+                type: 'objective',
+                question: "천둥과 번개가 심하게 칠 때 야외에서의 행동 수칙으로 올바른 것은 무엇일까요?",
+                options: ["건물 안이나 자동차 내부로 피한다", "높은 나무 아래로 들어가 비를 피한다", "금속 우산을 높이 들고 서 있는다", "야외 철제 울타리를 잡고 서 있는다"],
+                correctIndex: 0,
+                hint: "높은 곳이나 금속 물체 근처는 벼락이 떨어지기 쉽습니다.",
+                explanation: "벼락은 높은 나무나 금속 기둥에 잘 떨어집니다. 벼락이 칠 때는 낮고 안전한 건물 내부나 자동차 안으로 즉시 피해야 합니다."
+            },
+            {
+                type: 'objective',
+                question: "어린이가 있는 집에서 미사용 콘센트에 젓가락 등의 이물질을 넣지 못하도록 막아주는 안전 용품은 무엇일까요?",
+                options: ["콘센트 안전 커버(안전마개)", "알루미늄 호일", "젖은 수건", "철사 고정 장치"],
+                correctIndex: 0,
+                hint: "콘센트 구멍을 막아주는 전용 마개입니다.",
+                explanation: "콘센트 구멍에 쇠젓가락이나 이물질을 넣으면 큰 감전 사고가 일어납니다. 쓰지 않는 콘센트는 안전 커버로 막아두어야 합니다."
+            },
+            {
+                type: 'objective',
+                question: "전기 제품에서 불이 나거나 이상이 생겼을 때 가장 먼저 취해야 할 올바른 조치는 무엇일까요?",
+                options: ["누전차단기(메인 전원)를 내리고 신고한다", "불을 끄기 위해 물부터 냅다 붓는다", "전기를 켜둔 채 손으로 전선을 잡는다", "바람을 불어서 불을 끄려고 시도한다"],
+                correctIndex: 0,
+                hint: "전기가 계속 흐르면 물을 부어도 감전 위험이 생깁니다.",
+                explanation: "전기 화재 시 물을 그냥 붓면 전기가 물을 따라 흘러 감전될 수 있습니다. 먼저 누전차단기를 내려 전원을 끊는 것이 가장 중요합니다."
+            },
+            {
+                type: 'objective',
+                question: "전선의 겉면을 플라스틱이나 고무 같은 부도체로 감싸놓은 가장 큰 이유는 무엇일까요?",
+                options: ["감전 사고와 합선을 예방하기 위해", "전선을 알록달록하게 만들기 위해", "전기를 더 세게 흐르게 하기 위해", "전선 무게를 무겁게 만들기 위해"],
+                correctIndex: 0,
+                hint: "전기가 사람 몸으로 흐르는 것을 막아줍니다.",
+                explanation: "전선 겉면의 절연 피복(부도체)은 구리선에 흐르는 전기가 밖으로 새어 나오지 않도록 차단하여 감전과 합선 화재를 예방합니다."
+            }
+        ];
+
+        // 게임 상태 변수
+        let selectedQuestionCount = 8; // 기본 선택 문제 수
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let correctCount = 0;
+        let selectedOptionIndex = null;
+        let activeQuizList = []; // 선택된 문제 수만큼 무작위 추출된 진행 퀴즈 목록
+
+        // 문제 수 선택 버튼 처리
+        function setQuestionCount(count) {
+            playSound('click');
+            selectedQuestionCount = count;
+            [8, 10, 13, 16].forEach(num => {
+                const btn = document.getElementById(`count-btn-${num}`);
+                if (!btn) return;
+                if (num === count) {
+                    btn.className = "q-count-btn py-2.5 rounded-xl font-bold text-sm sm:text-base transition border-2 border-amber-400 bg-amber-400 text-amber-950 shadow-sm font-jua";
+                } else {
+                    btn.className = "q-count-btn py-2.5 rounded-xl font-bold text-sm sm:text-base transition border-2 border-slate-200 bg-white text-slate-600 hover:border-amber-300 font-jua";
+                }
+            });
+        }
+
+        // 배열 셔플 함수 (Fisher-Yates 알고리즘)
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Web Audio API를 활용한 효과음 생성기
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+        }
+
+        // 효과음 재생 함수
+        function playSound(type) {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.setValueAtTime(140, now + 0.15);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'fanfare') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const noteOsc = audioCtx.createOscillator();
+                        const noteGain = audioCtx.createGain();
+                        noteOsc.connect(noteGain);
+                        noteGain.connect(audioCtx.destination);
+                        
+                        noteOsc.type = 'triangle';
+                        noteOsc.frequency.setValueAtTime(freq, now + (idx * 0.12));
+                        noteGain.gain.setValueAtTime(0.25, now + (idx * 0.12));
+                        noteGain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.12) + 0.3);
+                        
+                        noteOsc.start(now + (idx * 0.12));
+                        noteOsc.stop(now + (idx * 0.12) + 0.3);
+                    });
+                }
+            } catch (e) {
+                console.log("Audio play error:", e);
+            }
+        }
+
+        // 게임 시작
+        function startQuiz() {
+            playSound('click');
+            currentQuestionIndex = 0;
+            score = 0;
+            correctCount = 0;
+
+            // 1. 전체 문제 은행(18문항)에서 선택한 개수(8, 10, 13, 16)만큼 무작위 추출
+            const shuffledBank = shuffleArray(quizData);
+            const selectedBank = shuffledBank.slice(0, selectedQuestionCount);
+
+            // 2. 객관식 문제의 보기 순서 및 정답 번호 위치 무작위 셔플
+            activeQuizList = selectedBank.map(q => {
+                const newQ = JSON.parse(JSON.stringify(q));
+                if (newQ.type === 'objective') {
+                    const originalCorrectText = newQ.options[newQ.correctIndex];
+                    const shuffledOptions = shuffleArray(newQ.options);
+                    const newCorrectIndex = shuffledOptions.indexOf(originalCorrectText);
+                    const numberedOptions = shuffledOptions.map((optText, idx) => `${['①', '②', '③', '④'][idx]} ${optText}`);
+                    
+                    newQ.options = numberedOptions;
+                    newQ.correctIndex = newCorrectIndex;
+                }
+                return newQ;
+            });
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        // 문제 로드
+        function loadQuestion() {
+            const q = activeQuizList[currentQuestionIndex];
+            selectedOptionIndex = null;
+
+            // UI 갱신
+            document.getElementById('current-q-num').innerText = currentQuestionIndex + 1;
+            document.getElementById('total-q-num').innerText = activeQuizList.length;
+            document.getElementById('question-badge-num').innerText = currentQuestionIndex + 1;
+            
+            const typeBadge = document.getElementById('question-type-badge');
+            if (q.type === 'subjective') {
+                typeBadge.innerText = '주관식';
+                typeBadge.className = 'bg-sky-500 text-white font-bold text-xs px-2.5 py-1 rounded-md font-jua';
+            } else {
+                typeBadge.innerText = '객관식';
+                typeBadge.className = 'bg-purple-500 text-white font-bold text-xs px-2.5 py-1 rounded-md font-jua';
+            }
+
+            document.getElementById('question-text').innerHTML = q.question;
+            document.getElementById('hint-text').innerText = q.hint;
+            document.getElementById('current-score').innerText = `${Math.round(score)}점`;
+
+            // 프로그레스 바 갱신
+            const progressPercent = ((currentQuestionIndex) / activeQuizList.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('progress-percent').innerText = `${Math.round(progressPercent)}%`;
+
+            // 주관식 / 객관식 UI 구성
+            const subjBox = document.getElementById('subjective-box');
+            const objBox = document.getElementById('objective-box');
+            const answerInput = document.getElementById('answer-input');
+
+            if (q.type === 'subjective') {
+                subjBox.classList.remove('hidden');
+                objBox.classList.add('hidden');
+                answerInput.value = '';
+                answerInput.disabled = false;
+                document.getElementById('submit-btn').disabled = false;
+                document.getElementById('submit-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+
+                setTimeout(() => {
+                    answerInput.focus();
+                }, 50);
+            } else {
+                subjBox.classList.add('hidden');
+                objBox.classList.remove('hidden');
+
+                const grid = document.getElementById('options-grid');
+                grid.innerHTML = '';
+                q.options.forEach((optText, idx) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = "option-btn text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-amber-400 hover:bg-amber-50 font-bold text-slate-700 transition flex items-center gap-2 bg-white";
+                    btn.innerHTML = `<span class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-black text-slate-600 flex-shrink-0">${idx+1}</span> <span class="text-sm sm:text-base">${optText}</span>`;
+                    btn.onclick = () => {
+                        selectOption(idx);
+                        submitAnswer();
+                    };
+                    grid.appendChild(btn);
+                });
+            }
+
+            // 힌트 창 닫기
+            document.getElementById('hint-box').classList.add('hidden');
+            document.getElementById('hint-chevron').classList.remove('rotate-180');
+
+            // 피드백 카드는 숨김
+            document.getElementById('feedback-card').classList.add('hidden');
+            document.getElementById('input-container').classList.remove('hidden');
+        }
+
+        // 객관식 보기 선택
+        function selectOption(idx) {
+            selectedOptionIndex = idx;
+        }
+
+        // 힌트 토글
+        function toggleHint() {
+            playSound('click');
+            const hintBox = document.getElementById('hint-box');
+            const chevron = document.getElementById('hint-chevron');
+            hintBox.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        // 유연한 정답 확인 알고리즘 (공백 제거, 소문자 변환)
+        function checkAnswerMatch(userInput, targetAnswers) {
+            const cleanUser = userInput.replace(/\s+/g, '').toLowerCase().trim();
+            if (!cleanUser) return false;
+
+            return targetAnswers.some(ans => {
+                const cleanTarget = ans.replace(/\s+/g, '').toLowerCase().trim();
+                return cleanUser === cleanTarget;
+            });
+        }
+
+        // 답안 제출
+        function submitAnswer() {
+            const q = activeQuizList[currentQuestionIndex];
+            let isCorrect = false;
+            const pointsPerQuestion = 100 / activeQuizList.length;
+
+            if (q.type === 'subjective') {
+                const inputEl = document.getElementById('answer-input');
+                const userVal = inputEl.value;
+
+                if (!userVal.trim()) {
+                    inputEl.focus();
+                    inputEl.classList.add('border-red-400', 'animate-pulse');
+                    setTimeout(() => inputEl.classList.remove('border-red-400', 'animate-pulse'), 1000);
+                    return;
+                }
+
+                isCorrect = checkAnswerMatch(userVal, q.answers);
+                inputEl.disabled = true;
+                document.getElementById('submit-btn').disabled = true;
+                document.getElementById('submit-btn').classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                if (selectedOptionIndex === null) {
+                    const grid = document.getElementById('options-grid');
+                    grid.classList.add('animate-pulse');
+                    setTimeout(() => grid.classList.remove('animate-pulse'), 1000);
+                    return;
+                }
+
+                isCorrect = (selectedOptionIndex === q.correctIndex);
+
+                // 객관식 버튼 스타일 갱신
+                const buttons = document.querySelectorAll('#options-grid button');
+                buttons.forEach((btn, idx) => {
+                    btn.disabled = true;
+                    if (idx === q.correctIndex) {
+                        btn.className = "option-btn text-left p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 font-bold text-emerald-900 transition flex items-center gap-2 shadow-sm";
+                    } else if (idx === selectedOptionIndex && !isCorrect) {
+                        btn.className = "option-btn text-left p-3.5 rounded-xl border-2 border-rose-400 bg-rose-50 font-bold text-rose-800 transition flex items-center gap-2";
+                    } else {
+                        btn.className = "option-btn text-left p-3.5 rounded-xl border-2 border-slate-200 font-bold text-slate-400 opacity-60 transition flex items-center gap-2 bg-slate-50";
+                    }
+                });
+            }
+
+            // 피드백 UI 설정
+            const feedbackCard = document.getElementById('feedback-card');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const correctAnswerDisplay = document.getElementById('correct-answer-display');
+            const explanationText = document.getElementById('explanation-text');
+
+            feedbackCard.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-300', 'bg-rose-50', 'border-rose-300');
+
+            if (isCorrect) {
+                playSound('correct');
+                score += pointsPerQuestion;
+                correctCount++;
+
+                feedbackCard.classList.add('bg-emerald-50', 'border-emerald-300');
+                feedbackIcon.className = "w-10 h-10 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0 bg-emerald-500 shadow-md";
+                feedbackIcon.innerHTML = `<i class="fa-solid fa-check"></i>`;
+                feedbackTitle.className = "font-jua text-xl text-emerald-800";
+                feedbackTitle.innerText = "정답입니다! 👏";
+                correctAnswerDisplay.innerText = q.type === 'subjective' 
+                    ? `대표 정답: ${q.answers[0]}` 
+                    : `정답: ${q.options[q.correctIndex]}`;
+            } else {
+                playSound('wrong');
+                feedbackCard.classList.add('bg-rose-50', 'border-rose-300');
+                feedbackIcon.className = "w-10 h-10 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0 bg-rose-500 shadow-md";
+                feedbackIcon.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+                feedbackTitle.className = "font-jua text-xl text-rose-800";
+                feedbackTitle.innerText = "아쉬워요! 오답입니다.";
+                correctAnswerDisplay.innerText = q.type === 'subjective' 
+                    ? `올바른 정답: ${q.answers.join(' / ')}` 
+                    : `올바른 정답: ${q.options[q.correctIndex]}`;
+            }
+
+            document.getElementById('current-score').innerText = `${Math.round(score)}점`;
+            explanationText.innerText = q.explanation;
+
+            feedbackCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // 키보드 이벤트 (Enter 및 객관식 1~4 키 지원)
+        document.addEventListener('keydown', function (e) {
+            const startScreen = document.getElementById('start-screen');
+            const quizScreen = document.getElementById('quiz-screen');
+            const resultScreen = document.getElementById('result-screen');
+
+            if (e.key === 'Enter') {
+                if (!startScreen.classList.contains('hidden')) {
+                    startQuiz();
+                    return;
+                } 
+                if (!quizScreen.classList.contains('hidden')) {
+                    const feedbackCard = document.getElementById('feedback-card');
+                    if (feedbackCard.classList.contains('hidden')) {
+                        submitAnswer();
+                    } else {
+                        nextQuestion();
+                    }
+                    return;
+                } 
+                if (!resultScreen.classList.contains('hidden')) {
+                    restartQuiz();
+                    return;
+                }
+            }
+
+            // 객관식 문제에서 키보드 1~4 번호키 대응
+            if (!quizScreen.classList.contains('hidden')) {
+                const feedbackCard = document.getElementById('feedback-card');
+                const q = activeQuizList[currentQuestionIndex];
+                if (q && q.type === 'objective' && feedbackCard.classList.contains('hidden')) {
+                    if (['1', '2', '3', '4'].includes(e.key)) {
+                        const optIndex = parseInt(e.key) - 1;
+                        selectOption(optIndex);
+                        submitAnswer();
+                    }
+                }
+            }
+        });
+
+        // 다음 문제로 이동
+        function nextQuestion() {
+            playSound('click');
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < activeQuizList.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        // 결과 화면 표시
+        function showResult() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const finalScore = Math.round(score);
+            document.getElementById('final-score').innerText = `${finalScore}점`;
+            document.getElementById('final-correct-count').innerText = `${correctCount} / ${activeQuizList.length}`;
+
+            const badgeIcon = document.getElementById('badge-icon-container');
+            const titleGrade = document.getElementById('title-grade');
+            const starRating = document.getElementById('star-rating');
+            const resultMessage = document.getElementById('result-message');
+
+            let starsHTML = '';
+
+            if (finalScore >= 90) {
+                playSound('fanfare');
+                titleGrade.innerText = "👑 완벽한 전기 안전 박사";
+                badgeIcon.innerText = "🏆";
+                resultMessage.innerText = "우와! 완벽해요. 전기 안전 지식을 확실하게 이해하고 있군요!";
+                starsHTML = '<i class="fa-solid fa-star"></i>'.repeat(5);
+
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                }
+            } else if (finalScore >= 70) {
+                playSound('correct');
+                titleGrade.innerText = "🛡️ 전기 안전 지킴이";
+                badgeIcon.innerText = "🥈";
+                resultMessage.innerText = "훌륭해요! 전기 안전에 대해 잘 알고 있네요. 조금만 더 복습하면 완벽해질 거예요!";
+                starsHTML = '<i class="fa-solid fa-star"></i>'.repeat(4) + '<i class="fa-regular fa-star"></i>';
+            } else if (finalScore >= 50) {
+                playSound('correct');
+                titleGrade.innerText = "🌱 전기 안전 입문자";
+                badgeIcon.innerText = "🥉";
+                resultMessage.innerText = "좋은 시도였어요! 틀린 문제의 해설을 다시 읽어보고 한 번 더 도전해 보세요.";
+                starsHTML = '<i class="fa-solid fa-star"></i>'.repeat(3) + '<i class="fa-regular fa-star"></i>'.repeat(2);
+            } else {
+                playSound('wrong');
+                titleGrade.innerText = "🔍 전기 안전 탐험가";
+                badgeIcon.innerText = "🔰";
+                resultMessage.innerText = "전기 안전은 정말 중요해요! 원리를 차근차근 다시 배우고 재도전해 볼까요?";
+                starsHTML = '<i class="fa-solid fa-star"></i>'.repeat(2) + '<i class="fa-regular fa-star"></i>'.repeat(3);
+            }
+
+            starRating.innerHTML = starsHTML;
+        }
+
+        // 재시작
+        function restartQuiz() {
+            playSound('click');
+            startQuiz();
+        }
+    </script>
+</body>
+</html>
